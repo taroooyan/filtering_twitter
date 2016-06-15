@@ -1,0 +1,6 @@
+<h1>Users#show</h1>
+<h2><%= @user[:username] %></h2>
+<% @user[:tweet].each do |tweet| %>
+  <p><%= tweet.to_s %></p>
+<% end %>
+
