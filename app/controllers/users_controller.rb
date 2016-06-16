@@ -12,7 +12,7 @@ class UsersController < ApplicationController
       # TODO 原文からスペースが消える問題があるのでどうしよう
       ng_words = ["ごみ", "つかれた", "スタンプ", "すごい", "天才", "芹澤優"]
       words.each do |word|
-        if ng_words.include?(word) 
+        if ng_words.include?(word)
           filtering_text += "*" * word.size
         else
           filtering_text += word
@@ -31,6 +31,10 @@ class UsersController < ApplicationController
         config.access_token    = ENV["ACCESS_TOKEN"]
         config.access_token_secret = ENV["ACCESS_TOKEN_SECRET"]
       end
+      # tweetの最後のid
+      @@max_id = 0
+      # tweet
+      @@text = Array.new
     end #/def initialize
 
     # 自分のタイムラインを取得
@@ -52,13 +56,33 @@ class UsersController < ApplicationController
     end #/def home_timeline
 
     def user_tweet(username)
-      text = Array.new
-      all_info = @client.user_timeline(username, { count: 100})
-      all_info.each do |user_info|
-        tweet = "#{user_info.created_at.strftime("%Y/%m/%d %X")}: #{user_info.text}".strip
-        text << Mecab.new.filtering(tweet)
+      if @@max_id == 0
+        all_info = @client.user_timeline(username, { count: 100})
+      else
+        all_info = @client.user_timeline(username, { count: 100, max_id: @@max_id})
       end
-      return text
+
+      all_info.each do |user_info|
+        # 重複するツイートを削除するため
+        next if @@max_id == user_info.id
+        @@max_id = user_info.id
+        string  = String.new
+        time    = "#{user_info.created_at.strftime("%Y/%m/%d %X")}"
+        tweet   = "#{user_info.text}".strip
+        ## 半角スペースが省略される問題の解決
+        ## テキストにユーザ名が含まれているのを分割(ィルタリング対象にしない)
+        tweet   = tweet.split
+        string += "#{time.strip} "
+        tweet.each do |t_text|
+          if t_text.match(/^@/)
+            string += "#{t_text} "
+          else
+            string << Mecab.new.filtering(t_text)
+          end
+        end
+        @@text << string ##/
+      end
+      return @@text
     end
   end #/class TwitterInfo
 
@@ -69,9 +93,11 @@ class UsersController < ApplicationController
 
   def show
     @user            = Hash.new
-    @user[:username] = "@#{params[:username]}"
+    @user[:username] = params[:username]
     client = TwitterInfo.new()
     # 配列をわたす
+    2.times do
     @user[:tweet] = client.user_tweet(params[:username])
+    end
   end
 end

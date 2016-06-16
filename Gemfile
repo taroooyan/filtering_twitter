@@ -45,7 +45,13 @@ group :development do
   gem 'spring'
 end
 
+#bootstrap
+gem 'therubyracer'
+gem 'less-rails'
+gem 'twitter-bootstrap-rails'
+
 gem "twitter"
 gem "slack-api"
 gem "natto"
 gem "dotenv-rails"
+
