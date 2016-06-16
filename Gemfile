@@ -55,3 +55,4 @@ gem "slack-api"
 gem "natto"
 gem "dotenv-rails"
 
+gem 'unicorn'
