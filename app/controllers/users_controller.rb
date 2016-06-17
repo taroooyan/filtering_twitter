@@ -1,16 +1,23 @@
 class UsersController < ApplicationController
   class Mecab
     def filtering(text)
+      # 分解
       # オプションはここで渡す, 使う辞書の指定をする
       nm = Natto::MeCab.new("-d /usr/local/lib/mecab/dic/mecab-ipadic-neologd")
-      # 分解
-      words   = Array.new
-      filtering_text = String.new
+      words = Array.new
       nm.parse(text) do |n|
         words << n.surface
       end
-      # TODO 原文からスペースが消える問題があるのでどうしよう
-      ng_words = ["ごみ", "つかれた", "スタンプ", "すごい", "天才", "芹澤優"]
+
+
+      # DBからng wordを取得
+      # ng_word:string, username:string
+      ng_words = Array.new
+      Word.select("ng_word").each do |ngword|
+        ng_words << ngword.ng_word
+      end
+
+      filtering_text = String.new
       words.each do |word|
         if ng_words.include?(word)
           filtering_text += "*" * word.size
@@ -96,8 +103,6 @@ class UsersController < ApplicationController
     @user[:username] = params[:username]
     client = TwitterInfo.new()
     # 配列をわたす
-    2.times do
     @user[:tweet] = client.user_tweet(params[:username])
-    end
   end
 end
