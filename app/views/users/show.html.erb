@@ -4,7 +4,7 @@
     <div class="row"> <!-- row で列を作る -->
 
       <%# left %>
-      <div class="col-md-7">
+      <div class="col-md-8">
         <div class="container">
           <div class="row">
             <img src="http://www.paper-glasses.com/api/twipi/<%= @user[:username]%>" alt="icon" class="img-thumbnail" >
@@ -20,6 +20,9 @@
               <% end %>
               ツイートを表示
             </div>
+
+            <div class="col-md-1">
+            </div>
           </div>
         </div>
       </div>
@@ -27,11 +30,15 @@
       <%# right %>
       <div class="col-md-4">
         <h3>フィルタリング文字列</h3>
+        <% @ng_words.each do |w| %>
+          <p><%= w %></p>
+          <hr>
+        <% end %>
+        <%= form_for @input, remote: true, url: users_new_path do |f| %>
+          <%= f.text_field :ng_word %>
+          <%= f.submit '追加'%>
+        <% end %>
       </div>
-
-      <div class="col-md-1">
-      </div>
-
     </div>
   </div>
 </body>

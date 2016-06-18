@@ -1,6 +1,7 @@
 Rails.application.routes.draw do
   get 'users/index'
   get 'users/show'
+  post 'users/new' => 'users#new'
   get 'users/show/:username' => 'users#show'
 
   # The priority is based upon order of creation: first created -> highest priority.

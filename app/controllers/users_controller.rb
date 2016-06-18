@@ -9,7 +9,6 @@ class UsersController < ApplicationController
         words << n.surface
       end
 
-
       # DBからng wordを取得
       # ng_word:string, username:string
       ng_words = Array.new
@@ -51,7 +50,6 @@ class UsersController < ApplicationController
       begin
         timelines = @client.home_timeline(count: 1)
         timelines.each do |tweet|
-          text = "#{tweet.created_at.strftime("%Y/%m/%d %X")}: #{tweet.text}"
           return Mecab.new.analysis(tweet.text)
         end
       rescue Twitter::Error::TooManyRequests => error
@@ -104,5 +102,20 @@ class UsersController < ApplicationController
     client = TwitterInfo.new()
     # 配列をわたす
     @user[:tweet] = client.user_tweet(params[:username])
+    # DBからng wordを取得
+    # ng_word:string, username:string
+    @ng_words = Array.new
+    Word.select("ng_word").each do |ngword|
+      @ng_words << ngword.ng_word
+    end
+    @input = Word.new
+  end
+
+  def new
+    @input = Word.new
+    if params[:word][:ng_word] != ""
+      @input.ng_word = params[:word][:ng_word]
+      @input.save
+    end
   end
 end
