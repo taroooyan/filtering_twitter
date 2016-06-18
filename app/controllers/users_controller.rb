@@ -16,15 +16,17 @@ class UsersController < ApplicationController
         ng_words << ngword.ng_word
       end
 
+      flag = false # フィルタリングが適応されたかどうか
       filtering_text = String.new
       words.each do |word|
         if ng_words.include?(word)
           filtering_text += "＊" * word.size
+          flag = true
         else
           filtering_text += word
         end
       end
-      return filtering_text
+      return {text: filtering_text, flag: flag}
     end #/def filtering
   end #/calss Mecab
 
@@ -70,22 +72,26 @@ class UsersController < ApplicationController
       all_info.each do |user_info|
         # 重複するツイートを削除するため
         next if @@max_id == user_info.id
-        @@max_id = user_info.id
-        string  = String.new
-        time    = "#{user_info.created_at.strftime("%Y/%m/%d %X")}"
-        tweet   = "#{user_info.text}".strip
+        @@max_id  = user_info.id
+        time      = "#{user_info.created_at.strftime("%Y/%m/%d %X")}".strip
+        flag      = false #flagはフィルタリングが適応されたかどうか
+        tweet     = "#{user_info.text}".strip
+        text = String.new
+        reply_users = Array.new
+
         ## 半角スペースが省略される問題の解決
         ## テキストにユーザ名が含まれているのを分割(ィルタリング対象にしない)
-        tweet   = tweet.split
-        string += "#{time.strip} "
-        tweet.each do |t_text|
-          if t_text.match(/^@/)
-            string += "#{t_text} "
+        tweet = tweet.split
+        tweet.each do |t|
+          if t.match(/^@/)
+            reply_users << "#{t} "
           else
-            string << Mecab.new.filtering(t_text)
+            tmp        = Mecab.new.filtering(t) # {text: , flag: }
+            text += tmp[:text]
+            flag = true if tmp[:flag]
           end
         end
-        @@text << string ##/
+        @@text << {text: text, reply_users: reply_users, time: time, flag: flag}
       end
       return {name: @name, tweet: @@text}
     end

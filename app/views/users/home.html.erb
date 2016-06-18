@@ -18,6 +18,7 @@
           </h4>
           にアクセスすることでそのユーザのツイートを見ることができる。<br>
           フィルタリング対象の文字列は＊＊に置換される<br>
+          フィルタリング対象対象となったツイートはオレンジ色で表示される<br>
           <br>
           フィルタリング対象とする文字列はテキストボックスに入力することで追加できる。<br>
           フィルタリング対象から外す場合には削除ボタンを押す。
@@ -32,7 +33,7 @@
           <div style="margin: -10px 0;">
             <hr>
             <div style="display: inline-block; _display: inline;">
-              <%= w %>
+              <%= w.to_s %>
             </div>
             <div style="margin-left: 5px; display: inline-block; _display: inline;">
               <%= button_to "削除", users_destroy_path(:ng_word => w) %>

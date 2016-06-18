@@ -1,5 +1,5 @@
 <body>
-  <div class="container"> <!-- container で全体を囲む -->
+  <div class="container" > <!-- container で全体を囲む -->
     <h1>Filtering Twitter</h1>
     <br>
     <div class="row"> <!-- row で列を作る -->
@@ -10,14 +10,27 @@
           <div class="row">
             <img src="http://www.paper-glasses.com/api/twipi/<%= @user[:username]%>" alt="icon" class="img-thumbnail" >
             <h3><%= "#{@user[:name]}@#{@user[:username]}" %></h3>
+            <hr>
             <div class="col-md-1">
             </div>
 
             <div class="col-md-6">
-              <hr>
+              <%#  @userの中身{name: ***, tweet:[{text: ***, time: ***, flag: ***},{text: ***, time: ***, flag: ***}...]} %>
               <% @user[:tweet].each do |tweet| %>
-                <p><%= tweet.to_s %></p>
-                <hr>
+                <div style="padding: 10px 10px; background-color: #F5FFFA;">
+                  <span style="color: #4169E1; margin-left: 5px; display: inline-block; _display: inline;">
+                    <% tweet[:reply_users].each do |reply_u| %>
+                      <%= reply_u.to_s %>
+                    <% end %>
+                  </span>
+                  <% if tweet[:flag] %>
+                    <span style="color: #FF8C00;"> <%= tweet[:text].to_s %> </span>
+                  <% else %>
+                    <%= tweet[:text].to_s %>
+                  <% end %>
+                  <span style="color: #C0C0C0;"> <%= tweet[:time].to_s %> </span>
+                  <hr>
+                </div>
               <% end %>
               ツイートを表示
             </div>
@@ -29,14 +42,13 @@
       </div>
 
       <%# right %>
-
       <div class="col-md-4">
         <h3>現在のフィルタリング文字列</h3>
         <% @ng_words.each do |w| %>
           <div style="margin: -10px 0;">
             <hr>
             <div style="display: inline-block; _display: inline;">
-              <%= w %>
+              <%= w.to_s %>
             </div>
             <div style="margin-left: 5px; display: inline-block; _display: inline;">
               <%= button_to "削除", users_destroy_path(:ng_word => w) %>
