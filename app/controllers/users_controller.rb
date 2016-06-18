@@ -121,8 +121,11 @@ class UsersController < ApplicationController
       @ng_words << ngword.ng_word
     end
 
-    # 配列をわたす
-    @user = client.user_tweet(params[:username])
+    # 非同期に処理ができない(わからない)ためとりあえず100ツイートのみで
+    1.times do
+      # 配列をわたす
+      @user = client.user_tweet(params[:username])
+    end
     @user[:username] = params[:username]
     @input = Word.new
   end

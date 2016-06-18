@@ -10,11 +10,11 @@
           <div class="row">
             <img src="http://www.paper-glasses.com/api/twipi/<%= @user[:username]%>" alt="icon" class="img-thumbnail" >
             <h3><%= "#{@user[:name]}@#{@user[:username]}" %></h3>
-            <hr>
             <div class="col-md-1">
             </div>
 
             <div class="col-md-6">
+              <hr>
               <%# @userの中身{name: ***, err: ***, tweet:[{text: ***, reply_users: ***, time: ***, flag: ***},
               {text: ***, reply_users: ***, time: ***, flag: ***}...]} %>
               <% if @user[:err] != nil%>
