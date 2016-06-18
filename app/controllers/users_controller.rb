@@ -60,11 +60,28 @@ class UsersController < ApplicationController
       end
     end #/def home_timeline
 
+    # 戻り値は Hash
+    # tweet は Array
     def user_tweet(username)
-      if @@max_id == 0
-        all_info = @client.user_timeline(username, { count: 100})
-      else
-        all_info = @client.user_timeline(username, { count: 100, max_id: @@max_id})
+      # エラー時の試行回数 
+      retries = 0
+      begin
+        # 鍵垢かどうか
+        return {tweet: ["鍵が付いているアカウントです"]} if @client.user(username).protected
+
+        @name = @client.user(username).name
+        if @@max_id == 0
+          all_info = @client.user_timeline(username, { count: 100})
+        else
+          all_info = @client.user_timeline(username, { count: 100, max_id: @@max_id})
+        end
+      rescue Twitter::Error::TooManyRequests => error
+        raise if retries >= 5
+        retries += 1
+        sleep error.rate_limit.reset_in
+        retry
+      rescue
+        return {tweet: ["存在していないアカウントか何らかのエラーが発生しました"]}
       end
 
       all_info.each do |user_info|
@@ -87,7 +104,7 @@ class UsersController < ApplicationController
         end
         @@text << string ##/
       end
-      return @@text
+      return {name: @name, tweet: @@text}
     end
   end #/class TwitterInfo
 
@@ -97,17 +114,19 @@ class UsersController < ApplicationController
   end
 
   def show
-    @user            = Hash.new
-    @user[:username] = params[:username]
+    @user  = Hash.new
     client = TwitterInfo.new()
-    # 配列をわたす
-    @user[:tweet] = client.user_tweet(params[:username])
+
     # DBからng wordを取得
     # ng_word:string, username:string
     @ng_words = Array.new
     Word.select("ng_word").uniq.each do |ngword|
       @ng_words << ngword.ng_word
     end
+
+    # 配列をわたす
+    @user = client.user_tweet(params[:username])
+    @user[:username] = params[:username]
     @input = Word.new
   end
 
@@ -122,9 +141,11 @@ class UsersController < ApplicationController
         else
           render :text => "エラーが発生しました"
         end
+
       else
         render :text => "#{@input[:ng_word]}はすでに登録されています"
       end
+
     else
       render :text => "空白は登録できません"
     end
