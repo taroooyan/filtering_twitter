@@ -1,5 +1,14 @@
 class UsersController < ApplicationController
   class Mecab
+    def initialize
+      # DBからng wordを取得
+      # ng_word:string, username:string
+      @@ng_words = Array.new
+      Word.select("ng_word").uniq.each do |ngword|
+        @@ng_words << ngword.ng_word
+      end
+    end
+
     def filtering(text)
       # 分解
       # オプションはここで渡す, 使う辞書の指定をする
@@ -9,17 +18,11 @@ class UsersController < ApplicationController
         words << n.surface
       end
 
-      # DBからng wordを取得
-      # ng_word:string, username:string
-      ng_words = Array.new
-      Word.select("ng_word").uniq.each do |ngword|
-        ng_words << ngword.ng_word
-      end
-
       flag = false # フィルタリングが適応されたかどうか
       filtering_text = String.new
+
       words.each do |word|
-        if ng_words.include?(word)
+        if @@ng_words.include?(word)
           filtering_text += "＊" * word.size
           flag = true
         else
@@ -34,9 +37,9 @@ class UsersController < ApplicationController
   class TwitterInfo
     def initialize
       @client = Twitter::REST::Client.new do |config|
-        config.consumer_key    = ENV["CONSUMER_KEY"]
-        config.consumer_secret = ENV["CONSUMER_SECRET"]
-        config.access_token    = ENV["ACCESS_TOKEN"]
+        config.consumer_key        = ENV["CONSUMER_KEY"]
+        config.consumer_secret     = ENV["CONSUMER_SECRET"]
+        config.access_token        = ENV["ACCESS_TOKEN"]
         config.access_token_secret = ENV["ACCESS_TOKEN_SECRET"]
       end
       # tweetの最後のid
@@ -56,9 +59,9 @@ class UsersController < ApplicationController
 
         @name = @client.user(username).name
         if @@max_id == 0
-          all_info = @client.user_timeline(username, { count: 100})
+          all_info = @client.user_timeline(username, {count: 100})
         else
-          all_info = @client.user_timeline(username, { count: 100, max_id: @@max_id})
+          all_info = @client.user_timeline(username, {count: 100, max_id: @@max_id})
         end
       rescue Twitter::Error::TooManyRequests => error
         raise if retries >= 5
@@ -72,11 +75,11 @@ class UsersController < ApplicationController
       all_info.each do |user_info|
         # 重複するツイートを削除するため
         next if @@max_id == user_info.id
-        @@max_id  = user_info.id
-        time      = "#{user_info.created_at.strftime("%Y/%m/%d %X")}".strip
-        flag      = false #flagはフィルタリングが適応されたかどうか
-        tweet     = "#{user_info.text}".strip
-        text = String.new
+        @@max_id    = user_info.id
+        time        = "#{user_info.created_at.strftime("%Y/%m/%d %X")}".strip
+        flag        = false #flagはフィルタリングが適応されたかどうか
+        tweet       = "#{user_info.text}".strip
+        text        = String.new
         reply_users = Array.new
 
         ## 半角スペースが省略される問題の解決
