@@ -15,24 +15,30 @@
             </div>
 
             <div class="col-md-6">
-              <%#  @userの中身{name: ***, tweet:[{text: ***, time: ***, flag: ***},{text: ***, time: ***, flag: ***}...]} %>
-              <% @user[:tweet].each do |tweet| %>
-                <div style="padding: 10px 10px; background-color: #F5FFFA;">
-                  <span style="color: #4169E1; margin-left: 5px; display: inline-block; _display: inline;">
-                    <% tweet[:reply_users].each do |reply_u| %>
-                      <%= reply_u.to_s %>
+              <%# @userの中身{name: ***, err: ***, tweet:[{text: ***, reply_users: ***, time: ***, flag: ***},
+              {text: ***, reply_users: ***, time: ***, flag: ***}...]} %>
+              <% if @user[:err] != nil%>
+                <h2> 
+                  <%= @user[:err] %>
+                </h2>
+              <% else %>
+                <% @user[:tweet].each do |tweet| %>
+                  <div style="padding: 10px 10px; background-color: #F5FFFA;">
+                    <span style="color: #4169E1; margin-left: 5px; display: inline-block; _display: inline;">
+                      <% tweet[:reply_users].each do |reply_u| %>
+                        <%= reply_u.to_s %>
+                      <% end %>
+                    </span>
+                    <% if tweet[:flag] %>
+                      <span style="color: #FF8C00;"> <%= tweet[:text].to_s %> </span>
+                    <% else %>
+                      <%= tweet[:text].to_s %>
                     <% end %>
-                  </span>
-                  <% if tweet[:flag] %>
-                    <span style="color: #FF8C00;"> <%= tweet[:text].to_s %> </span>
-                  <% else %>
-                    <%= tweet[:text].to_s %>
-                  <% end %>
-                  <span style="color: #C0C0C0;"> <%= tweet[:time].to_s %> </span>
-                  <hr>
-                </div>
+                    <span style="color: #C0C0C0;"> <%= tweet[:time].to_s %> </span>
+                    <hr>
+                  </div>
+                <% end %>
               <% end %>
-              ツイートを表示
             </div>
 
             <div class="col-md-1">

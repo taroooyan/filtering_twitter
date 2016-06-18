@@ -1,5 +1,4 @@
-#README
-### **これは**
+#README ### **これは**
 twitterを閲覧する際にフィルタリング機能をつけたサービス  
 ツイートの文字列の構文解析器としてMeCab、辞書としてmecab-ipadic-NEologdを使用  
 ユーザをしてしてツイートを見ます
@@ -24,16 +23,17 @@ twitterを閲覧する際にフィルタリング機能をつけたサービス
 `cp template.env .env`
 twitter APIのトークンを書くためあらかじめトークンを取得しておく必要があります。
 また、トークンを発行したtwitterの鍵垢にアクセスできてしまうので注意
+辞書ファイルのパスを入れる際に"-d"をつけ忘れないようにしてください
 ```.env
 CONSUMER_KEY=""
 CONSUMER_SECRET=""
 ACCESS_TOKEN=""
 ACCESS_TOKEN_SECRET=""
+DICTIONARY_PATH="-d "
 ```
 
 ### **課題**
 - タイムラインを表示できるように
 - ユーザごとにフィルタリングワードを決めれるように
-- 辞書のパスを柔軟に
 
 

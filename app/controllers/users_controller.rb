@@ -3,7 +3,7 @@ class UsersController < ApplicationController
     def filtering(text)
       # 分解
       # オプションはここで渡す, 使う辞書の指定をする
-      nm = Natto::MeCab.new("-d /usr/local/lib/mecab/dic/mecab-ipadic-neologd")
+      nm = Natto::MeCab.new(ENV["DICTIONARY_PATH"])
       words = Array.new
       nm.parse(text) do |n|
         words << n.surface
@@ -52,7 +52,7 @@ class UsersController < ApplicationController
       retries = 0
       begin
         # 鍵垢かどうか
-        return {tweet: ["鍵が付いているアカウントです"]} if @client.user(username).protected
+        return {err: "鍵が付いているアカウントです"} if @client.user(username).protected
 
         @name = @client.user(username).name
         if @@max_id == 0
@@ -66,7 +66,7 @@ class UsersController < ApplicationController
         sleep error.rate_limit.reset_in
         retry
       rescue
-        return {tweet: ["存在していないアカウントか何らかのエラーが発生しました"]}
+        return {err: "存在していないアカウントか何らかのエラーが発生しました"}
       end
 
       all_info.each do |user_info|
@@ -93,6 +93,7 @@ class UsersController < ApplicationController
         end
         @@text << {text: text, reply_users: reply_users, time: time, flag: flag}
       end
+      # @userの中身 {name: ***, err: ***, tweet:[{text: ***, reply_users: ***, time: ***, flag: ***},{text: ***, reply_users: ***, time: **    *, flag: ***}...]}
       return {name: @name, tweet: @@text}
     end
   end #/class TwitterInfo
