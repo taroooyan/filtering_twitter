@@ -19,7 +19,7 @@ class UsersController < ApplicationController
       filtering_text = String.new
       words.each do |word|
         if ng_words.include?(word)
-          filtering_text += "*" * word.size
+          filtering_text += "＊" * word.size
         else
           filtering_text += word
         end
@@ -93,7 +93,14 @@ class UsersController < ApplicationController
 
 
 
-  def index
+  def home
+    # DBからng wordを取得
+    # ng_word:string, username:string
+    @ng_words = Array.new
+    Word.select("ng_word").uniq.each do |ngword|
+      @ng_words << ngword.ng_word
+    end
+    @input = Word.new
   end
 
   def show
