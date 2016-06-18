@@ -43,23 +43,6 @@ class UsersController < ApplicationController
       @@text = Array.new
     end #/def initialize
 
-    # 自分のタイムラインを取得
-    def home_timeline
-      # エラー時の試行回数 
-      retries = 0
-      begin
-        timelines = @client.home_timeline(count: 1)
-        timelines.each do |tweet|
-          return Mecab.new.analysis(tweet.text)
-        end
-      rescue Twitter::Error::TooManyRequests => error
-        raise if retries >= 5
-        retries += 1
-        sleep error.rate_limit.reset_in
-        retry
-      end
-    end #/def home_timeline
-
     # 戻り値は Hash
     # tweet は Array
     def user_tweet(username)
