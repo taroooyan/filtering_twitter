@@ -12,7 +12,7 @@ class UsersController < ApplicationController
       # DBからng wordを取得
       # ng_word:string, username:string
       ng_words = Array.new
-      Word.select("ng_word").each do |ngword|
+      Word.select("ng_word").uniq.each do |ngword|
         ng_words << ngword.ng_word
       end
 
@@ -105,7 +105,7 @@ class UsersController < ApplicationController
     # DBからng wordを取得
     # ng_word:string, username:string
     @ng_words = Array.new
-    Word.select("ng_word").each do |ngword|
+    Word.select("ng_word").uniq.each do |ngword|
       @ng_words << ngword.ng_word
     end
     @input = Word.new
@@ -114,8 +114,24 @@ class UsersController < ApplicationController
   def new
     @input = Word.new
     if params[:word][:ng_word] != ""
-      @input.ng_word = params[:word][:ng_word]
-      @input.save
+      @input[:ng_word] = params[:word][:ng_word]
+      # すでに登録されているかどうか
+      unless Word.exists?(ng_word: @input[:ng_word])
+        if @input.save
+          render :text => "#{@input[:ng_word]}を登録しました"
+        else
+          render :text => "エラーが発生しました"
+        end
+      else
+        render :text => "#{@input[:ng_word]}はすでに登録されています"
+      end
+    else
+      render :text => "空白は登録できません"
     end
+  end
+
+  def destroy
+    @input = Word.destroy_all(ng_word: params[:ng_word])
+    render :text => "#{params[:ng_word]}をフィルタリング対象から削除しました"
   end
 end

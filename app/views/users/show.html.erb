@@ -31,10 +31,12 @@
       <div class="col-md-4">
         <h3>フィルタリング文字列</h3>
         <% @ng_words.each do |w| %>
-          <p><%= w %></p>
+          <div><%= w %>
+          <%= button_to "削除", users_destroy_path(:ng_word => w) %>
+        </div>
           <hr>
         <% end %>
-        <%= form_for @input, remote: true, url: users_new_path do |f| %>
+        <%= form_for @input, url: users_new_path do |f| %>
           <%= f.text_field :ng_word %>
           <%= f.submit '追加'%>
         <% end %>
@@ -42,5 +44,3 @@
     </div>
   </div>
 </body>
-
-
