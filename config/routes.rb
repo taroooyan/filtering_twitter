@@ -6,7 +6,7 @@ Rails.application.routes.draw do
   post 'users/new'     => 'users#new'
   post 'users/destroy' => 'users#destroy'
   # get  'users/show/:username' => 'users#show'
-
+  get '*unmatched_route', to: 'users#home'
   # The priority is based upon order of creation: first created -> highest priority.
   # See how all your routes lay out with "rake routes".
 
